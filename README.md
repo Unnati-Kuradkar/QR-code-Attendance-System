@@ -29,9 +29,6 @@ This hybrid approach ensures secure, fast, and accurate attendance management, p
 - Successfully automated attendance for students in real-time.  
 - Achieved 95%+ accuracy in facial recognition under normal lighting conditions.  
 - Improved efficiency and reduced human intervention.  
-- Screenshots:  
-  ![Login Page](screenshots/login.png)  
-  ![Dashboard](screenshots/dashboard.png)  
 
 ## Limitations
 - Accuracy may decrease under low-light or unusual angles.  
@@ -50,5 +47,3 @@ This project demonstrates a reliable and efficient AI-based hybrid system for at
 ## References
 1. A. Smith, "Face Recognition in Attendance Systems," IEEE Conference, 2021.  
 2. J. Doe, "QR Code-based Automation for Education," Journal of IT, 2020.  
-3. OpenCV Documentation: [https://opencv.org](https://opencv.org)  
-4. dlib Library Documentation: [http://dlib.net](http://dlib.net)  
