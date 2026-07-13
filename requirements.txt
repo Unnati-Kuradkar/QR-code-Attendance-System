@@ -1,0 +1,7 @@
+Flask
+gunicorn
+mysql-connector-python
+pandas
+qrcode
+Pillow
+opencv-python
