@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        body {
+            background-color: #f4f6f9;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 12px 20px;
+        }
+
+        .navbar-brand {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            border: none;
+            border-radius: 18px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-card h5 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .dashboard-card h2 {
+            font-size: 45px;
+            font-weight: bold;
+        }
+
+        /* Graph Card */
+        .graph-card {
+            border-radius: 18px;
+            border: none;
+            padding: 25px;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media(max-width:768px){
+
+            .navbar-brand{
+                font-size:20px;
+            }
+
+            .dashboard-card h2{
+                font-size:35px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container-fluid">
+
+        <span class="navbar-brand">
+            QR Attendance System
+        </span>
+
+        <div class="d-flex gap-2 flex-wrap">
+
+            <!-- Admin Panel -->
+            <div class="dropdown">
+
+                <button class="btn btn-light dropdown-toggle"
+                        data-bs-toggle="dropdown">
+
+                    Admin Panel
+
+                </button>
+
+                <ul class="dropdown-menu">
+
+                    <li>
+                        <a class="dropdown-item" href="/add_student">
+                            Add Student
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="/generate">
+                            Generate QR
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <!-- Buttons -->
+            <a href="/attendance_control" class="btn btn-warning">
+            ⏰ Attendance Time
+            </a>
+            <a href="/scan_page" class="btn btn-success">
+                Scan QR
+            </a>
+
+            <a href="/report" class="btn btn-info text-white">
+                Reports
+            </a>
+
+            <a href="/leaderboard" class="btn btn-warning">
+                🏆 Leaderboard
+            </a>
+
+            <a href="/ranking" class="btn btn-primary">
+                📊 Ranking
+            </a>
+
+            <a href="/logout" class="btn btn-danger">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<!-- ================= DASHBOARD ================= -->
+
+<div class="container mt-5">
+
+    <!-- Cards -->
+    <div class="row g-4">
+
+        <!-- Total Students -->
+        <div class="col-lg-3 col-md-6">
+
+            <div class="dashboard-card bg-primary shadow">
+
+                <h5>Total Students</h5>
+
+                <h2>{{ total_students }}</h2>
+
+            </div>
+
+        </div>
+
+        <!-- Present Today -->
+        <div class="col-lg-3 col-md-6">
+
+            <div class="dashboard-card bg-success shadow">
+
+                <h5>Present Today</h5>
+
+                <h2>{{ present_today }}</h2>
+
+            </div>
+
+        </div>
+
+        <!-- Absent -->
+        <div class="col-lg-3 col-md-6">
+
+            <div class="dashboard-card bg-danger shadow">
+
+                <h5>Absent Today</h5>
+
+                <h2>{{ total_students - present_today }}</h2>
+
+            </div>
+
+        </div>
+
+        <!-- Attendance Percentage -->
+        <div class="col-lg-3 col-md-6">
+
+            <div class="dashboard-card bg-dark shadow">
+
+                <h5>Attendance %</h5>
+
+                <h2>
+
+                    {% if total_students > 0 %}
+                        {{ (present_today / total_students * 100) | round(2) }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= GRAPH ================= -->
+
+    <div class="mt-5">
+
+        <h2 class="fw-bold mb-4">
+            Monthly Attendance Graph
+        </h2>
+
+        <div class="card graph-card shadow-lg">
+
+            <canvas id="attendanceChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= CHART SCRIPT ================= -->
+
+<script>
+
+    const rawLabels = {{ dates | tojson }};
+    const rawData = {{ counts | tojson }};
+
+    const labels = [...new Set(rawLabels)];
+    const data = rawData.slice(0, labels.length);
+
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+    new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                label: 'Present Students',
+
+                data: data,
+
+                borderWidth: 3,
+
+                tension: 0.3,
+
+                fill: false
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+                    display: true
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+                        stepSize: 1
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

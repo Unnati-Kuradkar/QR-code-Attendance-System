@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Attendance</title>
+    
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+            background: #f4f6f9;
+        }
+
+        #reader {
+            width: 320px;
+            margin: 20px auto;
+        }
+
+        #successBox {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        input {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>📷 Scan QR Code</h2>
+
+<div id="reader"></div>
+
+<h3>OR</h3>
+
+<input type="file" id="qrImage" accept="image/*">
+
+<div id="successBox"></div>
+
+<script>
+let scanned = false;
+
+function showPopup(message, color) {
+    const box = document.getElementById("successBox");
+    box.innerText = message;
+    box.style.background = color;
+    box.style.display = "block";
+
+    setTimeout(() => {
+        box.style.display = "none";
+        scanned = false;
+    }, 2000);
+}
+
+// 📷 Camera Scan
+function onScanSuccess(decodedText) {
+
+    if (scanned) return;
+    scanned = true;
+
+    sendToServer(decodedText);
+}
+
+// 📁 Image Upload Scan
+document.getElementById("qrImage").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const html5QrCode = new Html5Qrcode("reader");
+
+    html5QrCode.scanFile(file, true)
+        .then(decodedText => {
+            sendToServer(decodedText);
+        })
+        .catch(err => {
+            showPopup("❌ Invalid QR Image", "red");
+        });
+});
+
+// 🔁 Common function
+function sendToServer(decodedText) {
+
+    console.log("Scanned:", decodedText);
+
+    fetch("http://127.0.0.1:5000/scan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ data: decodedText })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "success") {
+            showPopup(`✅ ${data.name} marked`, "green");
+        }
+        else if (data.status === "duplicate") {
+            showPopup(`⚠ ${data.name} already marked`, "orange");
+        }
+        else {
+            showPopup(`❌ ${data.message}`, "red");
+        }
+    })
+    .catch(() => {
+        showPopup("❌ Server Error", "gray");
+    });
+}
+
+// Start camera
+const scanner = new Html5QrcodeScanner("reader", {
+    fps: 10,
+    qrbox: 250
+});
+
+scanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>
