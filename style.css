@@ -1,0 +1,40 @@
+:root {
+    --primary: #4f46e5;
+    --secondary: #06b6d4;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --dark: #0f172a;
+    --light: #f8fafc;
+    --card-bg: #ffffff;
+}
+.card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--light);
+}
+
+
+.dashboard-card {
+    border-radius: 15px;
+    border: none;
+    background: var(--card-bg);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
